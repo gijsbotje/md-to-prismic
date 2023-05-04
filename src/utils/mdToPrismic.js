@@ -7,12 +7,30 @@ const mdToPrismic = filePath => {
   const {data: frontmatter, content, ...rest} = matter(markdownContent);
   const richText = convert(content);
 
+  const formattedFrontmatter = Object.keys(frontmatter).reduce((acc, key) => {
+    if (typeof frontmatter[key] === 'number') {
+      return ({...acc, [key]: frontmatter[key].toString()})
+    }
+
+    if (typeof frontmatter[key] instanceof Date) {
+      return ({...acc, [key]: frontmatter[key].toJSON()})
+    }
+
+    return ({ ...acc, [key]: frontmatter[key] })
+  }, {})
+
   return {
-    ...frontmatter,
+    ...formattedFrontmatter,
     slices: [
       {
         key: "paragraph",
-        value: richText,
+        value: {
+          "variation": "default",
+          "items": [{}],
+          "primary": {
+            content: richText,
+          },
+        },
       },
     ],
   };

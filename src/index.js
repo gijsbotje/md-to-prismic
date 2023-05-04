@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import fs from 'fs';
+import JSZip from 'jszip';
 import path from 'path';
 import inquirer from 'inquirer';
 import  inquirerFileTreeSelection  from 'inquirer-file-tree-selection-prompt';
@@ -11,9 +12,17 @@ inquirer.registerPrompt('file-tree-selection', inquirerFileTreeSelection);
 const convertFiles = async (files) => {
   files.map(file => {
     fs.writeFileSync(`${file.replace(/\.[^.]*$/, '')}.json`, JSON.stringify(mdToPrismic(file), null, '  '), 'utf8');
-    // console.log(chalk.green(`Coverted ${path.basename(file)} to ${path.basename(file).replace(/\.[^.]*$/, '')}.json`));
   })
+}
 
+const filesToZip = async (files, pathToWriteTo) => {
+  const zip = new JSZip();
+  files.map(file => {
+    zip.file(`${path.basename(file).replace(/\.[^.]*$/, '')}.json`, JSON.stringify(mdToPrismic(file), null, '  '));
+  });
+
+  zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
+    .pipe(fs.createWriteStream(`${pathToWriteTo}/prismic-import.zip`));
 }
 
 export default async () => {
@@ -59,7 +68,13 @@ export default async () => {
   const tasks = new Listr([
     {
       title: `Converting ${files.length} file${files.length === 1 ? '' : 's'} to Pismic JSON`,
-      task: () =>  convertFiles(files),
+      enabled: () => !isDirectory,
+      task: () =>  convertFiles(files, pathToConvert),
+    },
+    {
+      title: `Converting ${files.length} file${files.length === 1 ? '' : 's'} to Pismic JSON into a zip file`,
+      enabled: () => isDirectory,
+      task: () =>  filesToZip(files, pathToConvert),
     }
   ]);
 
