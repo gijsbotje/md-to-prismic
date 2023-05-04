@@ -17,16 +17,50 @@ git clone git@github.com:afosto/md-to-prismic.git
 Install the dependencies with yarn.
 
 ```shell
-yarn install
+npm install
 ```
 
 Link the package on your local machine.
 
 ```shell
-yarn link
+npm link
 ```
 
 You can now run the package in a folder with makdown files.
 ```shell
 md-to-prismic
 ```
+
+## Supported Markdown elements
+Because of the limitations within the Prismic rich text editor,
+not all elements are supported. Below is a list of all markdown
+elements and how they are handled.
+
+| Element          | Markdown Syntax                 | Support                                                                 |
+|------------------|---------------------------------|-------------------------------------------------------------------------|
+| Text             | `paragraph text`                | ✅                                                                       |
+| Heading          | `# h1`                          | ✅                                                                       |
+| Bold             | `**bold text**`                 | ✅                                                                       |
+| Italic           | `*italic text*`                 | ✅                                                                       |
+| Link             | `[label](https://mywebsite.com)` | ✅                                                                       |
+| image            | `![alt text](image.jpg)`        | ✅                                                                       |
+| Ordered list     | `1. First item`                 | ⚠️ A list can only have one level in prismic                            |
+| Unordered list   | `- First item`                  | ⚠️ A list can only have one level in prismic                            |
+| Inline code      | `` `code` ``                    | 🚫                                                                      |
+| Horizontal rule  | `---`                            | 🚫                                                                      |
+
+
+### Extended Markdown Syntax
+| Element          | Markdown Syntax                                                      | Support                                                                 |
+|------------------|----------------------------------------------------------------------|-------------------------------------------------------------------------|
+| Table            | table                                                                | 🚫                                                                      |
+| Fenced code bock | code                                                                 | ⚠️ Adds an empty preformatted text line. Looking for a fix on this one. |
+| Footnote         | `Here's a sentence with a footnote. [^1] [^1]: This is the footnote.` | 🚫                                                                      |
+| Heading ID       | `### My Great Heading {#custom-id}`                                   | 🚫                                                                      |
+| Definition list  | `term: definition`                                                | 🚫                                                                  |
+| Strikethrough    | `~~strike though~~`                                                   |  🚫                                                                       |
+| Task list        | `- [x] Write the press release`                                       | 🚫                                                                  |
+| Emoji            | `smile! :joy:`                                                        |  🚫                                                                       |
+| Highlight        | `highlight ==these words==.`                                          | 🚫                                                                      |
+| Subscript        | `h~2~o`                                                               |  🚫                                                                       |
+| Superscript      | `x^2^`                                                                 |  🚫                                                                       |

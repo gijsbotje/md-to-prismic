@@ -11,15 +11,30 @@ inquirer.registerPrompt('file-tree-selection', inquirerFileTreeSelection);
 
 const convertFiles = async (files) => {
   files.map(file => {
-    fs.writeFileSync(`${file.replace(/\.[^.]*$/, '')}.json`, JSON.stringify(mdToPrismic(file), null, '  '), 'utf8');
+    const fileContents = mdToPrismic(file);
+    if (!fileContents) {
+      console.log(chalk.red(`${path.basename(file)} skipped`));
+      return;
+    }
+    fs.writeFileSync(`${file.replace(/\.[^.]*$/, '')}.json`, JSON.stringify(fileContents, null, '  '), 'utf8');
   })
 }
 
 const filesToZip = async (files, pathToWriteTo) => {
   const zip = new JSZip();
-  files.map(file => {
-    zip.file(`${path.basename(file).replace(/\.[^.]*$/, '')}.json`, JSON.stringify(mdToPrismic(file), null, '  '));
+  const filesAddedToZip = files.map(file => {
+    const fileContents = mdToPrismic(file);
+    if (!fileContents) {
+      console.log(chalk.red(`${path.basename(file)} skipped`));
+      return;
+    }
+    zip.file(`${path.basename(file).replace(/\.[^.]*$/, '')}.json`, JSON.stringify(fileContents, null, '  '));
   });
+
+  if (filesAddedToZip.some(file => file === false)) {
+    console.log(chalk.red('No files added to zip'));
+    return;
+  }
 
   zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
     .pipe(fs.createWriteStream(`${pathToWriteTo}/prismic-import.zip`));
@@ -58,7 +73,9 @@ export default async () => {
     process.exit();
   }
 
-  const files = isDirectory ? fs.readdirSync(pathToConvert).filter(file => path.extname(file) === '.md').map(file => `${pathToConvert}/${file}`) : [pathToConvert];
+  const files = isDirectory ?
+    fs.readdirSync(pathToConvert).filter(file => path.extname(file) === '.md').map(file => `${pathToConvert}/${file}`)
+    : [pathToConvert];
 
   if (files.length === 0) {
     console.log(chalk.red('No markdown files found in the directory'));;
