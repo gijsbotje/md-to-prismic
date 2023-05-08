@@ -3,15 +3,17 @@ import fs from 'fs';
 import JSZip from 'jszip';
 import path from 'path';
 import inquirer from 'inquirer';
-import  inquirerFileTreeSelection  from 'inquirer-file-tree-selection-prompt';
+import inquirerFileTreeSelection from 'inquirer-file-tree-selection-prompt';
 import mdToPrismic from './utils/mdToPrismic.js';
 import Listr from 'listr';
+import yargs from 'yargs/yargs';
+import { hideBin } from 'yargs/helpers';
 
 inquirer.registerPrompt('file-tree-selection', inquirerFileTreeSelection);
 
-const convertFiles = async (files) => {
+const convertFiles = async (files, {fieldName, sliceName, sliceVariation, outputAs}) => {
   files.map(file => {
-    const fileContents = mdToPrismic(file);
+    const fileContents = mdToPrismic(file, {fieldName, sliceName, sliceVariation, outputAs});
     if (!fileContents) {
       console.log(chalk.red(`${path.basename(file)} skipped`));
       return;
@@ -20,10 +22,10 @@ const convertFiles = async (files) => {
   })
 }
 
-const filesToZip = async (files, pathToWriteTo) => {
+const filesToZip = async (files, {pathToWriteTo, fieldName, sliceName, sliceVariation, outputAs}) => {
   const zip = new JSZip();
   const filesAddedToZip = files.map(file => {
-    const fileContents = mdToPrismic(file);
+    const fileContents = mdToPrismic(file, {fieldName, sliceName, sliceVariation, outputAs});
     if (!fileContents) {
       console.log(chalk.red(`${path.basename(file)} skipped`));
       return;
@@ -42,7 +44,56 @@ const filesToZip = async (files, pathToWriteTo) => {
 
 export default async () => {
 
-  const {pathToConvert} = await inquirer.prompt([
+  const { pathToConvert: pathToConvertCli, fieldName:fieldNameCli, sliceName:sliceNameCli, sliceVariation:sliceVariationCli, outputAs:outputAsCli } = yargs(hideBin(process.argv))
+      .option('pathToConvert', {
+        alias: 'p',
+        type: 'string',
+        description: 'Path of the file or folder to convert',
+        default: null,
+        required: true,
+      })
+      .option('outputAs', {
+        alias: 'o',
+        type: 'string',
+        description: 'Output the rich text as a slice or field.',
+        default: null,
+        choices: ['slice', 'field'],
+        required: true,
+      })
+      .option('fieldName', {
+        alias: 'f',
+        type: 'string',
+        description: 'ID of the field to output the richt text in.',
+        default: null,
+        required: true,
+      })
+      .option('sliceName', {
+        alias: 's',
+        type: 'string',
+        description: 'ID of the slice to output the richt text in.',
+        default: null,
+      })
+      .option('sliceVariation', {
+        alias: 'v',
+        type: 'string',
+        description: 'Variation of the slice to output the richt text in.',
+        default: 'default',
+      })
+      .parse();
+
+  if (outputAsCli === 'slice') {
+    const missingConfig = [];
+    if (!sliceNameCli) {
+      missingConfig.push('sliceName');
+    }
+
+    if (missingConfig.length > 0) {
+      console.log(chalk.red(`missing arguments ${missingConfig.join(', ')} `));
+      return null;
+    }
+  }
+  
+  const { pathToConvert = pathToConvertCli, fieldName = fieldNameCli, sliceName = sliceNameCli, sliceVariation = sliceVariationCli, outputAs = outputAsCli } = await inquirer.prompt([
     {
       type: 'file-tree-selection',
       name: 'pathToConvert',
@@ -62,10 +113,52 @@ export default async () => {
           return chalk.grey(name);
         }
         return name;
-      }
+      },
+      when: () => !pathToConvertCli,
+    },
+    {
+      type: 'list',
+      name: 'outputAs',
+      message: 'Where do you want the content to go?',
+      choices: ['field', 'slice'],
+      default: 'field',
+      when: () => !outputAsCli,
+    },
+    {
+      type: 'input',
+      name: 'fieldName',
+      message: 'What is the id of the rich text field?',
+      when(answers) {
+        return (answers.outputAs === 'field' || outputAsCli === 'field') && !fieldNameCli;
+      },
+    },
+    {
+      type: 'input',
+      name: 'sliceName',
+      message: 'What is the id of the slice?',
+      when(answers) {
+        return (answers.outputAs === 'slice' || outputAsCli === 'slice') && !sliceNameCli;
+      },
+    },
+    {
+      type: 'input',
+      name: 'sliceVariation',
+      message: 'What is the variation of the slice?',
+      default: 'default',
+      when(answers) {
+        return (answers.outputAs === 'slice' || outputAsCli === 'slice') && !sliceVariationCli;
+      },
+    },
+    {
+      type: 'input',
+      name: 'fieldName',
+      message: 'What is the id of the rich text field in the slice?',
+      when(answers) {
+        return (answers.outputAs === 'slice' || outputAsCli === 'slice') && !fieldNameCli;
+      },
     }
-  ])
-
+  ]);
+  
   const isDirectory = fs.lstatSync(pathToConvert).isDirectory();
 
   if (!isDirectory && path.extname(pathToConvert) !== '.md') {
@@ -86,12 +179,12 @@ export default async () => {
     {
       title: `Converting ${files.length} file${files.length === 1 ? '' : 's'} to Pismic JSON`,
       enabled: () => !isDirectory,
-      task: () =>  convertFiles(files, pathToConvert),
+      task: () =>  convertFiles(files, {pathToConvert, fieldName, sliceName, sliceVariation, outputAs}),
     },
     {
       title: `Converting ${files.length} file${files.length === 1 ? '' : 's'} to Pismic JSON into a zip file`,
       enabled: () => isDirectory,
-      task: () =>  filesToZip(files, pathToConvert),
+      task: () =>  filesToZip(files, {pathToWriteTo: pathToConvert, fieldName, sliceName, sliceVariation, outputAs}),
     }
   ]);
 

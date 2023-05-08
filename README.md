@@ -8,7 +8,7 @@ Markdown files are converted to a format that can be imported into the Afosto Pr
 
 
 ## Usage
-clone the respository to your machine.
+clone the repository to your machine.
 
 ```shell
 git clone git@github.com:afosto/md-to-prismic.git
@@ -26,9 +26,24 @@ Link the package on your local machine.
 npm link
 ```
 
-You can now run the package in a folder with makdown files.
+You can now run the package in a folder with markdown files.
 ```shell
 md-to-prismic
+```
+
+## Run with arguments
+Instead of using the prompts you can also set arguments.
+
+| argument             | description                                          | type                                            | default value        |
+|----------------------|------------------------------------------------------|-------------------------------------------------|----------------------|
+| -p, --pathToConvert  | Path of the file or folder to convert                | [string] [required]                             | [default: null]      |
+| -o, --outputAs       | Output the rich text as a slice or field.            | [string] [required] [choices: "slice", "field"] | [default: null]      |
+| -f, --fieldName      | ID of the field to output the richt text in          | [string] [required]                             | [default: null]      |
+| -s, --sliceName      | ID of the slice to output the richt text in.         | [string]                                        | [default: null]      |
+| -v, --sliceVariation | Variation of the slice to output the richt text in.  | [string]                                        | [default: "default"] |
+
+```shell
+md-to-prismic -p ./examples -o slice -f content -s paragraph
 ```
 
 ## Supported Markdown elements

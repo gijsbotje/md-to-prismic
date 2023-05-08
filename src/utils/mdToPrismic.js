@@ -4,9 +4,9 @@ import matter from 'gray-matter';
 import chalk from "chalk";
 import path from "path";
 
-const requiredFields = ['type', 'uid', 'lang'];
+const requiredFields = ['type', 'lang'];
 
-const mdToPrismic = filePath => {
+const mdToPrismic = (filePath, {fieldName, sliceName, sliceVariation, outputAs}) => {
   const markdownContent = fs.readFileSync(filePath, 'utf8');
   const {data: frontmatter, content} = matter(markdownContent);
   const richText = convert(content);
@@ -35,20 +35,28 @@ const mdToPrismic = filePath => {
     return ({ ...acc, [key]: frontmatter[key] })
   }, {})
 
-  return {
-    ...formattedFrontmatter,
-    slices: [
-      {
-        key: "paragraph",
-        value: {
-          "variation": "default",
-          "items": [{}],
-          "primary": {
-            content: richText,
+  if (outputAs === 'slice') {
+
+    return {
+      ...formattedFrontmatter,
+      slices: [
+        {
+          key: sliceName,
+          value: {
+            "variation": sliceVariation,
+            "items": [{}],
+            "primary": {
+              [fieldName]: richText,
+            },
           },
         },
-      },
-    ],
+      ],
+    };
+  }
+
+  return {
+    ...formattedFrontmatter,
+    [fieldName]: richText,
   };
 };
 
