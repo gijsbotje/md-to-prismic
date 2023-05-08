@@ -1,7 +1,7 @@
 # md-to-prismic
 
 A simple cli tool to convert markdown files to Prismic JSON.
-It supports YAML frontmatter to define the UID and document title.
+It supports YAML front matter to define the UID and other Custom Type fields.
 Markdown files are converted to a format that can be imported into the Afosto Prismic account as a blog post.
 
 ![ezgif com-crop](https://user-images.githubusercontent.com/7714133/236067121-8683950a-5175-499d-8de4-bcea78551b9c.gif)
