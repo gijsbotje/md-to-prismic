@@ -1,14 +1,11 @@
-import convert from '@ueno/markdown-to-prismic-richtext';
-import fs from 'fs';
+import convert from '@gijsbotje/md-to-prismic-richtext';
 import matter from 'gray-matter';
 import chalk from "chalk";
-import path from "path";
 
 const requiredFields = ['type', 'lang'];
 
-const mdToPrismic = (filePath, {fieldName, sliceName, sliceVariation, outputAs}) => {
-  const markdownContent = fs.readFileSync(filePath, 'utf8');
-  const {data: frontmatter, content} = matter(markdownContent);
+const mdToPrismic = (markdown, {fileName, fieldName, sliceName, sliceVariation, outputAs}) => {
+  const {data: frontmatter, content} = matter(markdown);
   const richText = convert(content);
   const frontmatterKeys = Object.keys(frontmatter);
 
@@ -19,7 +16,7 @@ const mdToPrismic = (filePath, {fieldName, sliceName, sliceVariation, outputAs})
   }, []);
 
   if (missingFields.length > 0) {
-    console.log(chalk.red(`missing fields ${missingFields.join(', ')} in ${path.basename(filePath)}`));
+    console.log(chalk.red(`missing fields ${missingFields.join(', ')}${fileName ? ` in ${fileName}` : ''}`));
     return null;
   }
 

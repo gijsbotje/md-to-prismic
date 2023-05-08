@@ -39,8 +39,8 @@ Instead of using the prompts you can also set arguments.
 | -p, --pathToConvert  | Path of the file or folder to convert                | [string] [required]                             | [default: null]      |
 | -o, --outputAs       | Output the rich text as a slice or field.            | [string] [required] [choices: "slice", "field"] | [default: null]      |
 | -f, --fieldName      | ID of the field to output the richt text in          | [string] [required]                             | [default: null]      |
-| -s, --sliceName      | ID of the slice to output the richt text in.         | [string]                                        | [default: null]      |
-| -v, --sliceVariation | Variation of the slice to output the richt text in.  | [string]                                        | [default: "default"] |
+| -s, --sliceName      | ID of the slice to output the richt text in.         | [string] [required: when outputAs === 'slice']  | [default: null]      |
+| -v, --sliceVariation | Variation of the slice to output the richt text in.  | [string] [required: when outputAs === 'slice']  | [default: "default"] |
 
 ```shell
 md-to-prismic -p ./examples -o slice -f content -s paragraph
