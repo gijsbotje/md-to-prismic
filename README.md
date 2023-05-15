@@ -8,9 +8,52 @@ Markdown files are converted to a format that can be imported into the Afosto Pr
 
 
 ## Usage
-Globally install the package in your machine with your prefered package manager.
+You can transform markdown within a project using the default export.
+
+```shell
+npm install @gijsbotje/md-to-prismic
+# or
+yarn add @gijsbotje/md-to-prismic
+```
+
+```javascript
+import mdToPrismic from '@gijsbotje/md-to-prismic';
+
+const markdownContent = `
+---
+type: blog
+lang: en-us
+---
+
+# my title
+
+My content
+`;
+
+const prismicJSON = mdToPrismic(markdownContent, {
+  fieldName: 'content', /* required */
+  filename: 'my-blog-post.md', /* optional */
+  sliceName: 'MyTextSlice', /* optional */
+  sliceVariation: 'variation-2', /* string, default: 'default' */
+  outputAs: 'slice', /* ['slice', 'field'], default: field */
+});
+
+console.log(prismicJSON);
+```
+
+To use the cli, globally install the package in your machine with your preferred package manager.
+
 ```shell
 npm install -g @gijsbotje/md-to-prismic
+# or
+yarn add -g @gijsbotje/md-to-prismic
+```
+
+You can now run the package in a folder with markdown files.
+Selecting the folder will transform all markdown files and output a ready to go zip file.
+Selecting a single file will output a JSON file structured according to the Prismic JSON.
+```shell
+md-to-prismic
 ```
 
 ## Run with arguments
