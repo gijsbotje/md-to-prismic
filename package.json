@@ -1,6 +1,6 @@
 {
   "name": "@gijsbotje/md-to-prismic",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "main": "src/index.js",
   "type": "module",
@@ -18,7 +18,7 @@
     "start:dev": "nodemon --exec babel-node src/index.js --file src/blog.md"
   },
   "dependencies": {
-    "@gijsbotje/md-to-prismic-richtext": "^0.0.2",
+    "@gijsbotje/md-to-prismic-richtext": "^0.0.6",
     "chalk": "^5.2.0",
     "esm": "^3.2.25",
     "gray-matter": "^4.0.3",

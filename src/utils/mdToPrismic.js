@@ -4,7 +4,7 @@ import chalk from "chalk";
 
 const requiredFields = ['type', 'lang'];
 
-const mdToPrismic = (markdown, {fileName, fieldName, sliceName, sliceVariation, outputAs}) => {
+const mdToPrismic = (markdown, {fileName, fieldName, sliceName, sliceVariation = 'default', outputAs} = {}) => {
   const {data: frontmatter, content} = matter(markdown);
   const richText = convert(content);
   const frontmatterKeys = Object.keys(frontmatter);
