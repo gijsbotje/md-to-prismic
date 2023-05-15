@@ -8,27 +8,9 @@ Markdown files are converted to a format that can be imported into the Afosto Pr
 
 
 ## Usage
-clone the repository to your machine.
-
+Globally install the package in your machine with your prefered package manager.
 ```shell
-git clone git@github.com:afosto/md-to-prismic.git
-```
-
-Install the dependencies with yarn.
-
-```shell
-npm install
-```
-
-Link the package on your local machine.
-
-```shell
-npm link
-```
-
-You can now run the package in a folder with markdown files.
-```shell
-md-to-prismic
+npm install -g @gijsbotje/md-to-prismic
 ```
 
 ## Run with arguments
@@ -79,3 +61,29 @@ elements and how they are handled.
 | Highlight        | `highlight ==these words==.`                                          | 🚫                                                                      |
 | Subscript        | `h~2~o`                                                               |  🚫                                                                       |
 | Superscript      | `x^2^`                                                                 |  🚫                                                                       |
+
+
+
+## Contributing
+clone the repository to your machine.
+
+```shell
+git clone git@github.com:afosto/md-to-prismic.git
+```
+
+Install the dependencies with yarn.
+
+```shell
+npm install
+```
+
+Link the package on your local machine.
+
+```shell
+npm link
+```
+
+You can now run the package in a folder with markdown files.
+```shell
+md-to-prismic
+```
