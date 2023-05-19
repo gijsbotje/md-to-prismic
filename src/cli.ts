@@ -8,11 +8,13 @@ import mdToPrismic from './utils/mdToPrismic.js';
 import Listr from 'listr';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
+import {convertFilesOptions, filesToZipOptions} from "./types.js";
 
 inquirer.registerPrompt('file-tree-selection', inquirerFileTreeSelection);
 
-const convertFiles = async (files, {fieldName, sliceName, sliceVariation, outputAs}) => {
-    files.map(file => {
+const convertFiles = async (files: Array<string>, options: convertFilesOptions) => {
+    const {fieldName, sliceName, sliceVariation, outputAs} = options || {};
+    files.map((file: string) => {
         const content = fs.readFileSync(file, 'utf8');
         const fileContents = mdToPrismic(content, {fileName: path.basename(file), fieldName, sliceName, sliceVariation, outputAs});
         if (!fileContents) {
@@ -23,7 +25,8 @@ const convertFiles = async (files, {fieldName, sliceName, sliceVariation, output
     })
 }
 
-const filesToZip = async (files, {pathToWriteTo, fieldName, sliceName, sliceVariation, outputAs}) => {
+const filesToZip = async (files: Array<string>, options: filesToZipOptions) => {
+    const {pathToWriteTo, fieldName, sliceName, sliceVariation, outputAs} = options || {};
     const zip = new JSZip();
     const filesAddedToZip = files.map(file => {
         const content = fs.readFileSync(file, 'utf8');
@@ -35,18 +38,20 @@ const filesToZip = async (files, {pathToWriteTo, fieldName, sliceName, sliceVari
         zip.file(`${path.basename(file).replace(/\.[^.]*$/, '')}.json`, JSON.stringify(fileContents, null, '  '));
     });
 
-    if (filesAddedToZip.some(file => file === false)) {
+    // @ts-ignore
+    if (filesAddedToZip.some((file) => file === false)) {
         console.log(chalk.red('No files added to zip'));
         return;
     }
 
-    zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
+    zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
         .pipe(fs.createWriteStream(`${pathToWriteTo}/prismic-import.zip`));
 }
 
 export default async () => {
 
-    const { pathToConvert: pathToConvertCli, fieldName:fieldNameCli, sliceName:sliceNameCli, sliceVariation:sliceVariationCli, outputAs:outputAsCli } = yargs(hideBin(process.argv))
+    // @ts-ignore
+    const { pathToConvert: pathToConvertCli, fieldName: fieldNameCli, sliceName: sliceNameCli, sliceVariation: sliceVariationCli, outputAs: outputAsCli } = yargs(hideBin(process.argv))
         .option('pathToConvert', {
             alias: 'p',
             type: 'string',
@@ -87,7 +92,7 @@ export default async () => {
 
         if (missingConfig.length > 0) {
             console.log(chalk.red(`missing arguments ${missingConfig.join(', ')} `));
-            return null;
+            return;
         }
     }
 

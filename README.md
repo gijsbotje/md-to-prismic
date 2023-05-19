@@ -32,7 +32,7 @@ My content
 
 const prismicJSON = mdToPrismic(markdownContent, {
   fieldName: 'content', /* required */
-  filename: 'my-blog-post.md', /* optional */
+  fileName: 'my-blog-post.md', /* optional */
   sliceName: 'MyTextSlice', /* optional */
   sliceVariation: 'variation-2', /* string, default: 'default' */
   outputAs: 'slice', /* ['slice', 'field'], default: field */

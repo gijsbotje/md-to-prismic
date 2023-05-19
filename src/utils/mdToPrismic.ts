@@ -1,16 +1,19 @@
 import convert from '@gijsbotje/md-to-prismic-richtext';
 import matter from 'gray-matter';
 import chalk from "chalk";
+import {mdToPrismicOptions} from "../types.js";
 
 const requiredFields = ['type', 'lang'];
 
-const mdToPrismic = (markdown, {fileName, fieldName, sliceName, sliceVariation = 'default', outputAs} = {}) => {
+const mdToPrismic = (markdown: string, options: mdToPrismicOptions) => {
+  const {fileName, fieldName, sliceName, sliceVariation = 'default', outputAs} = options || {};
   const {data: frontmatter, content} = matter(markdown);
+  // @ts-ignore
   const richText = convert(content);
   const frontmatterKeys = Object.keys(frontmatter);
 
 
-  const missingFields = requiredFields.reduce((acc, field) => {
+  const missingFields = requiredFields.reduce((acc: Array<string>, field: string) => {
     if (frontmatterKeys.includes(field)) return acc;
     return [...acc, field];
   }, []);
@@ -25,6 +28,7 @@ const mdToPrismic = (markdown, {fileName, fieldName, sliceName, sliceVariation =
       return ({...acc, [key]: frontmatter[key].toString()})
     }
 
+    // @ts-ignore
     if (typeof frontmatter[key] instanceof Date) {
       return ({...acc, [key]: frontmatter[key].toJSON()})
     }
